@@ -15,7 +15,7 @@ const POPULAR_PRODUCTS = [
       price: 599,
       rating: 4.5,
       description: 'Sofá-cama funcional e estiloso, perfeito para relaxar durante o dia e acomodar convidados à noite.',
-      image: 'https://v0.dev/placeholder.svg'
+      image: ''
     },
     { 
       id: 2, 
@@ -23,7 +23,7 @@ const POPULAR_PRODUCTS = [
       price: 250,
       rating: 4.2,
       description: 'Poltrona confortável com design moderno.',
-      image: 'https://v0.dev/placeholder.svg'
+      image: ''
     },
     { 
       id: 3, 
@@ -31,7 +31,7 @@ const POPULAR_PRODUCTS = [
       price: 300,
       rating: 4.0,
       description: 'Mesa de centro elegante para sua sala.',
-      image: 'https://v0.dev/placeholder.svg'
+      image: ''
     },
     { 
       id: 4, 
@@ -39,7 +39,7 @@ const POPULAR_PRODUCTS = [
       price: 599,
       rating: 4.7,
       description: 'Estante moderna e espaçosa para seus livros e decoração.',
-      image: 'https://v0.dev/placeholder.svg'
+      image: ''
     }
   ];
 
