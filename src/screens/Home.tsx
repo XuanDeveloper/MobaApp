@@ -51,30 +51,12 @@ export default function HomeScreen() {
     navigation.navigate('ProductDetails', { productId });
   };
 
-  const handleLogout = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Login' }],
-    });
-  };
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = await AsyncStorage.getItem('authToken');
-      if (!token) {
-        navigation.navigate('Login');
-      }
-    };
-
-    checkAuth();
-  }, []);
-
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>MobApp</Text>
-          <TouchableOpacity onPress={handleLogout}>
+          <TouchableOpacity>
             <Feather name="log-out" size={24} color="black" />
           </TouchableOpacity>
         </View>
