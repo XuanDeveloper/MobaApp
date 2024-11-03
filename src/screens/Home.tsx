@@ -1,53 +1,79 @@
-import React, { useEffect } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Image, ImageStyle, ViewStyle, TextStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../types/navigation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Product, RootStackParamList } from '../../types/navigation';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
-const POPULAR_PRODUCTS = [
-    { 
-      id: 1, 
-      name: 'Sofá-cama', 
-      price: 599,
-      rating: 4.5,
-      description: 'Sofá-cama funcional e estiloso, perfeito para relaxar durante o dia e acomodar convidados à noite.',
-      image: ''
-    },
-    { 
-      id: 2, 
-      name: 'Poltrona', 
-      price: 250,
-      rating: 4.2,
-      description: 'Poltrona confortável com design moderno.',
-      image: ''
-    },
-    { 
-      id: 3, 
-      name: 'Mesa de centro', 
-      price: 300,
-      rating: 4.0,
-      description: 'Mesa de centro elegante para sua sala.',
-      image: ''
-    },
-    { 
-      id: 4, 
-      name: 'Estante', 
-      price: 599,
-      rating: 4.7,
-      description: 'Estante moderna e espaçosa para seus livros e decoração.',
-      image: ''
-    }
-  ];
 
+const POPULAR_PRODUCTS: Product[] = [
+  { 
+    id: 1, 
+    name: 'Sofá-cama', 
+    price: 599,
+    rating: 4.5,
+    description: 'Sofá-cama funcional e estiloso, perfeito para relaxar durante o dia e acomodar convidados à noite.',
+    image: 'https://cdn.leroymerlin.com.br/products/sofa_cama_marcelle_2_lugares_150_casal_veludo_paris_pes_de_ma_1571172120_1a04_600x600.jpg'
+  },
+  { 
+    id: 2, 
+    name: 'Poltrona', 
+    price: 250,
+    rating: 4.2,
+    description: 'Poltrona confortável com design moderno.',
+    image: 'https://imgs.casasbahia.com.br/55058269/1g.jpg'
+  },
+  { 
+    id: 3, 
+    name: 'Mesa de centro', 
+    price: 300,
+    rating: 4.0,
+    description: 'Mesa de centro elegante para sua sala.',
+    image: 'https://images.tcdn.com.br/img/img_prod/634712/mesa_de_centro_com_espelho_riad_decorativa_sala_de_estar_freijo_preto_g26_gran_belo_88311_1_5610a6e05424633d96e9bf1d60eac5ad.jpg'
+  },
+  { 
+    id: 4, 
+    name: 'Estante', 
+    price: 599,
+    rating: 4.7,
+    description: 'Estante moderna e espaçosa para seus livros e decoração.',
+    image: 'https://panoverse-cdn.com.br/lojadallacosta.img/produto/335/estante-para-livros-1-gaveta-industrial-freijo-dalla-costa-1963-large.png'
+  }
+];
 
-export default function HomeScreen() {
+interface ProductItemProps {
+  item: Product;
+  onPress: (id: number) => void;
+}
+
+const ProductItem: React.FC<ProductItemProps> = ({ item, onPress }) => (
+  <TouchableOpacity 
+    style={styles.popularItem}
+    onPress={() => onPress(item.id)}
+  >
+    {item.image ? (
+      <Image 
+        source={{ uri: item.image }} 
+        style={styles.productImage}
+        resizeMode="cover"
+      />
+    ) : (
+      <View style={styles.popularImagePlaceholder} />
+    )}
+    <Text>{item.name}</Text>
+    <Text style={styles.priceText}>R${item.price}</Text>
+    <TouchableOpacity style={styles.heartButton}>
+      <Feather name="heart" size={18} color="gray" />
+    </TouchableOpacity>
+  </TouchableOpacity>
+);
+
+const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const navigateToProductDetails = (productId: number) => {
+  const navigateToProductDetails = (productId: number): void => {
     navigation.navigate('ProductDetails', { productId });
   };
 
@@ -101,21 +127,14 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           <View style={styles.popularGrid}>
-    {POPULAR_PRODUCTS.map((item) => (
-      <TouchableOpacity 
-        key={item.id} 
-        style={styles.popularItem}
-        onPress={() => navigateToProductDetails(item.id)}
-      >
-        <View style={styles.popularImagePlaceholder} />
-        <Text >{item.name}</Text>
-        <Text style={styles.priceText}>R${item.price}</Text>
-        <TouchableOpacity style={styles.heartButton}>
-          <Feather name="heart" size={18} color="gray" />
-        </TouchableOpacity>
-      </TouchableOpacity>
-    ))}
-  </View>
+            {POPULAR_PRODUCTS.map((item) => (
+              <ProductItem 
+                key={item.id} 
+                item={item} 
+                onPress={navigateToProductDetails}
+              />
+            ))}
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -144,9 +163,42 @@ export default function HomeScreen() {
       </View>
     </View>
   );
+};
+
+interface Styles {
+  container: ViewStyle;
+  header: ViewStyle;
+  headerTitle: TextStyle;
+  searchBar: ViewStyle;
+  searchIcon: TextStyle;
+  searchInput: TextStyle;
+  section: ViewStyle;
+  sectionHeader: ViewStyle;
+  sectionTitle: TextStyle;
+  seeAllText: TextStyle;
+  categoriesScroll: ViewStyle;
+  categoryItem: ViewStyle;
+  categoryImagePlaceholder: ViewStyle;
+  categoryText: TextStyle;
+  promotionBanner: ViewStyle;
+  promotionText: TextStyle;
+  discountText: TextStyle;
+  promotionSubtext: TextStyle;
+  popularGrid: ViewStyle;
+  popularItem: ViewStyle;
+  popularImagePlaceholder: ViewStyle;
+  productImage: ImageStyle;
+  priceText: TextStyle;
+  heartButton: ViewStyle;
+  roomsScroll: ViewStyle;
+  roomItem: ViewStyle;
+  roomImagePlaceholder: ViewStyle;
+  roomText: TextStyle;
+  bottomNav: ViewStyle;
+  navItem: ViewStyle;
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create<Styles>({
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -246,6 +298,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
+  productImage: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
   priceText: {
     fontWeight: 'bold',
   },
@@ -284,3 +342,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default HomeScreen;
