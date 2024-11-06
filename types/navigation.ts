@@ -1,9 +1,12 @@
 export type RootStackParamList = {
-    Home: undefined;
-    ProductDetails: { productId: number };
-  };
+  Login: undefined;
+  Register: undefined;
+  HomeScreen: undefined;
+  ProductDetails: { productId: number };
+};
   
   export interface Product {
+    imageUrl: string | undefined;
     id: number;
     name: string;
     price: number;
