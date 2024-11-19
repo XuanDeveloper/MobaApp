@@ -1,6 +1,4 @@
 export type RootStackParamList = {
-  Login: undefined;
-  Register: undefined;
   HomeScreen: undefined;
   ProductDetails: { productId: number };
 };

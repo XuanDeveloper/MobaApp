@@ -1,13 +1,23 @@
-import React, { useEffect, useState } from 'react'; 
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../types/navigation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../../services/api';
+import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import React, { useEffect, useState } from "react";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import api from "../../services/api";
+import { RootStackParamList } from "../../types/navigation";
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'HomeScreen'>;
+type HomeScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "HomeScreen"
+>;
 
 interface APIProduct {
   id_product: number;
@@ -24,54 +34,24 @@ const HomeScreen: React.FC = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await api.get('api/products/8');
+        const response = await api.get("api/products/8");
         setApiProducts(response.data.data);
       } catch (error) {
-        console.error('Erro ao buscar produtos:', error);
+        console.error("Erro ao buscar produtos:", error);
       }
     };
 
     fetchProducts();
   }, []);
 
-  const handleLogout = async () => {
-    Alert.alert(
-      'Logout',
-      'Deseja realmente sair?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel'
-        },
-        {
-          text: 'Sim',
-          onPress: async () => {
-            try {
-              await AsyncStorage.removeItem('authToken');
-              await AsyncStorage.removeItem('userData');
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
-              });
-            } catch (error) {
-              console.error('Erro ao fazer logout:', error);
-              Alert.alert('Erro', 'Não foi possível fazer logout. Tente novamente.');
-            }
-          }
-        }
-      ],
-      { cancelable: false }
-    );
-  };
-
   const navigateToProductDetails = (productId: number): void => {
-    navigation.navigate('ProductDetails', { productId });
+    navigation.navigate("ProductDetails", { productId });
   };
 
   const categories = [
-    { id: 1, name: 'Cadeiras', icon: '🪑' },
-    { id: 2, name: 'Sofá', icon: '🛋️' },
-    { id: 3, name: 'Mesas', icon: '🪑' },
+    { id: 1, name: "Cadeiras", icon: "🪑" },
+    { id: 2, name: "Sofá", icon: "🛋️" },
+    { id: 3, name: "Mesas", icon: "🪑" },
   ];
 
   return (
@@ -79,13 +59,15 @@ const HomeScreen: React.FC = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>MobApp</Text>
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Feather name="log-out" size={24} color="#FF8C00" />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.searchBar}>
-          <Feather name="search" size={20} color="#999" style={styles.searchIcon} />
+          <Feather
+            name="search"
+            size={20}
+            color="#999"
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder="Cadeira, mesas e sofás"
@@ -100,8 +82,12 @@ const HomeScreen: React.FC = () => {
               <Text style={styles.seeAllText}>Ver todos</Text>
             </TouchableOpacity>
           </View>
-          
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoriesScroll}
+          >
             {categories.map((category) => (
               <TouchableOpacity key={category.id} style={styles.categoryItem}>
                 <View style={styles.categoryIcon}>
@@ -128,13 +114,13 @@ const HomeScreen: React.FC = () => {
           </View>
           <View style={styles.popularGrid}>
             {apiProducts.map((item) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={item.id_product}
                 style={styles.popularItem}
                 onPress={() => navigateToProductDetails(item.id_product)}
               >
-                <Image 
-                  source={{ uri: item.img_product }} 
+                <Image
+                  source={{ uri: `data:image/png;base64,${item.img_product}` }}
                   style={styles.productImage}
                   resizeMode="cover"
                 />
@@ -155,27 +141,27 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   logoutButton: {
     padding: 8,
   },
   searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
     marginHorizontal: 20,
     marginBottom: 24,
@@ -193,18 +179,18 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   seeAllText: {
-    color: '#FF8C00',
+    color: "#FF8C00",
     fontSize: 14,
   },
   categoriesScroll: {
@@ -212,15 +198,15 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     marginRight: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   categoryIcon: {
     width: 64,
     height: 64,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 8,
   },
   categoryEmoji: {
@@ -228,58 +214,58 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
   promotionBanner: {
-    backgroundColor: '#FFF5EC',
+    backgroundColor: "#FFF5EC",
     padding: 20,
     marginHorizontal: 20,
     borderRadius: 12,
     marginBottom: 24,
   },
   promotionSubtext: {
-    color: '#FF8C00',
+    color: "#FF8C00",
     fontSize: 14,
   },
   discountText: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FF8C00',
+    fontWeight: "bold",
+    color: "#FF8C00",
     marginVertical: 4,
   },
   popularGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     paddingHorizontal: 20,
     gap: 16,
   },
   popularItem: {
-    width: '47%',
+    width: "47%",
   },
   productImage: {
-    width: '100%',
+    width: "100%",
     aspectRatio: 1,
     borderRadius: 8,
     marginBottom: 8,
   },
   productName: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
     marginBottom: 4,
   },
   priceText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
   },
   heartButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     right: 8,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 16,
     padding: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
