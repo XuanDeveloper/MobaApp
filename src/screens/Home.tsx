@@ -2,6 +2,8 @@ import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useEffect, useState } from "react";
+
+
 import {
   Image,
   ScrollView,
@@ -13,6 +15,7 @@ import {
 } from "react-native";
 import api from "../../services/api";
 import { RootStackParamList } from "../../types/navigation";
+import WhatsAppButton from "../components/whatsappButton";
 
 type HomeScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -133,6 +136,7 @@ const HomeScreen: React.FC = () => {
             ))}
           </View>
         </View>
+        <WhatsAppButton phoneNumber="17981788401"/>
       </ScrollView>
     </View>
   );
