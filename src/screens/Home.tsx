@@ -1,26 +1,16 @@
-import { Feather } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useEffect, useState } from "react";
-
-
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
+  View,
   Text,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
-  View,
+  ScrollView,
+  Image,
 } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import api from "../../services/api";
-import { RootStackParamList } from "../../types/navigation";
-import WhatsAppButton from "../components/whatsappButton";
-
-type HomeScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "HomeScreen"
->;
+import { HomeScreenProps } from "../../types/navigation";
 
 interface APIProduct {
   id_product: number;
@@ -30,9 +20,8 @@ interface APIProduct {
   img_product: string;
 }
 
-const HomeScreen: React.FC = () => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [apiProducts, setApiProducts] = useState<APIProduct[]>([]);
-  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -127,16 +116,12 @@ const HomeScreen: React.FC = () => {
                   style={styles.productImage}
                   resizeMode="cover"
                 />
-                <TouchableOpacity style={styles.heartButton}>
-                  <Feather name="heart" size={18} color="#999" />
-                </TouchableOpacity>
                 <Text style={styles.productName}>{item.name_product}</Text>
                 <Text style={styles.priceText}>R${item.price_product}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
-        <WhatsAppButton phoneNumber="17981788401"/>
       </ScrollView>
     </View>
   );
@@ -158,9 +143,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: "600",
-  },
-  logoutButton: {
-    padding: 8,
   },
   searchBar: {
     flexDirection: "row",
@@ -262,22 +244,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
   },
-  heartButton: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    backgroundColor: "white",
-    borderRadius: 16,
-    padding: 6,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
 });
 
 export default HomeScreen;
+

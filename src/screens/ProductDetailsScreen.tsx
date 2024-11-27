@@ -1,19 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
+import { ProductDetailsScreenProps } from '../../types/navigation';
+import api from '../../services/api';
+import WhatsAppButton from '../components/whatsappButton';
 import { Feather } from '@expo/vector-icons';
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../../types/navigation';
-
-type ProductDetailsRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
 interface Product {
   id_product: number;
@@ -21,186 +11,182 @@ interface Product {
   price_product: string;
   description_product: string;
   img_product: string;
-  rating?: number;
-  reviews_count?: number;
-  materials?: string;
 }
 
-interface TabProps {
-  title: string;
-  isActive: boolean;
-  onPress: () => void;
-}
+type TabType = 'description' | 'materials' | 'reviews';
 
-const Tab: React.FC<TabProps> = ({ title, isActive, onPress }) => (
-  <TouchableOpacity 
-    onPress={onPress}
-    style={[styles.tab, isActive && styles.activeTab]}
-  >
-    <Text style={[styles.tabText, isActive && styles.activeTabText]}>
-      {title}
-    </Text>
-  </TouchableOpacity>
-);
-
-const Rating: React.FC<{ rating?: number, reviews_count?: number }> = ({ rating, reviews_count }) => {
-  if (!rating) return null;
-
-  return (
-    <View style={styles.ratingContainer}>
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Feather
-          key={star}
-          name="star"
-          size={16}
-          color={star <= rating ? '#FFD700' : '#E0E0E0'}
-        />
-      ))}
-      <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
-      {reviews_count && (
-        <Text style={styles.reviewsCount}>{reviews_count} Reviews</Text>
-      )}
-    </View>
-  );
-};
-
-
-
-export default function ProductDetailsScreen() {
-  const route = useRoute<ProductDetailsRouteProp>();
+const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ route }) => {
   const { productId } = route.params;
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'description' | 'materials' | 'reviews'>('description');
-
-  // Simulated product data matching the image
-  const simulatedProduct: Product = {
-    id_product: 1,
-    name_product: "Sofá Retrátil Reclinável Confortável",
-    price_product: "1.495,99",
-    description_product: "Sofá-cama Estofado Retrátil e Reclinável\nEstrutura em madeira reflorestada seca e imunizada",
-    img_product: "https://a-static.mlcdn.com.br/800x560/sofa-retratil-reclinavel-confortavel-para-sala-200m-bege-fernandes/reido/251-b/fcbd449e8f4ec32deaab2a78f9e046bc.jpeg",
-    rating: 4.6,
-    reviews_count: 98,
-    materials: "Estrutura: Madeira reflorestada\nRevestimento: Tecido suede\nPés: Metal cromado",
-  };
+  const [activeTab, setActiveTab] = useState<TabType>('description');
 
   useEffect(() => {
-    setProduct(simulatedProduct);
-    setIsLoading(false);
+    const fetchProductDetails = async () => {
+      try {
+        const response = await api.get(`api/products/search/${productId}`);
+        setProduct(response.data.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Erro ao buscar detalhes do produto:', error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchProductDetails();
   }, [productId]);
 
-  if (isLoading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#FF6600" />
-      </View>
-    );
-  }
+  const renderStars = (rating: number) => {
+    return [...Array(5)].map((_, index) => (
+      <Feather
+        key={index}
+        name={index < Math.floor(rating) ? "star" : "star"}
+        size={16}
+        color={index < Math.floor(rating) ? "#FFB800" : "#E0E0E0"}
+        style={{ marginRight: 2 }}
+      />
+    ));
+  };
 
-  if (error || !product) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>{error || 'Produto não encontrado'}</Text>
-      </View>
-    );
-  }
-
-  const renderContent = () => {
+  const renderTabContent = () => {
     switch (activeTab) {
       case 'description':
-        return <Text style={styles.contentText}>{product.description_product}</Text>;
+        return <Text style={styles.tabContent}>{product?.description_product}</Text>;
       case 'materials':
-        return <Text style={styles.contentText}>{product.materials}</Text>;
+        return <Text style={styles.tabContent}>Informações sobre materiais não disponíveis</Text>;
       case 'reviews':
-        return <Rating rating={product.rating} reviews_count={product.reviews_count} />;
+        return (
+          <View style={styles.reviewsContainer}>
+            <View style={styles.ratingContainer}>
+              {renderStars(4.5)}
+              <Text style={styles.ratingText}>4.5</Text>
+            </View>
+            <Text style={styles.reviewsText}>86 reviews</Text>
+          </View>
+        );
       default:
         return null;
     }
   };
 
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF8C00" />
+      </View>
+    );
+  }
+
+  if (!product) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Produto não encontrado</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView>
-        <Image source={{ uri: product.img_product }} style={styles.productImage} />
+        <Image
+          source={{ uri: `data:image/jpeg;base64,${product.img_product}` }}
+          style={styles.productImage}
+          resizeMode="cover"
+        />
         <View style={styles.contentContainer}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.productName}>{product.name_product}</Text>
-            <Text style={styles.price}>R${product.price_product}</Text>
-          </View>
-          <Rating rating={product.rating} reviews_count={product.reviews_count} />
+          <Text style={styles.productName}>{product.name_product}</Text>
+          <Text style={styles.priceText}>R$ {product.price_product}</Text>
           
+          <View style={styles.ratingContainer}>
+            {renderStars(4.5)}
+            <Text style={styles.ratingCount}>86 reviews</Text>
+          </View>
+
           <View style={styles.tabContainer}>
-            <Tab 
-              title="Descrição" 
-              isActive={activeTab === 'description'} 
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'description' && styles.activeTab]}
               onPress={() => setActiveTab('description')}
-            />
-            <Tab 
-              title="Materiais" 
-              isActive={activeTab === 'materials'} 
+            >
+              <Text style={[styles.tabText, activeTab === 'description' && styles.activeTabText]}>
+                Descrição
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'materials' && styles.activeTab]}
               onPress={() => setActiveTab('materials')}
-            />
-            <Tab 
-              title="Avaliação" 
-              isActive={activeTab === 'reviews'} 
+            >
+              <Text style={[styles.tabText, activeTab === 'materials' && styles.activeTabText]}>
+                Materiais
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'reviews' && styles.activeTab]}
               onPress={() => setActiveTab('reviews')}
-            />
+            >
+              <Text style={[styles.tabText, activeTab === 'reviews' && styles.activeTabText]}>
+                Avaliação
+              </Text>
+            </TouchableOpacity>
           </View>
-          
-          <View style={styles.tabContent}>
-            {renderContent()}
+
+          <View style={styles.tabContentContainer}>
+            {renderTabContent()}
           </View>
         </View>
       </ScrollView>
+      
+      <WhatsAppButton 
+        phoneNumber="5517981788401"
+        message={`Olá! Estou interessado no produto: ${product.name_product}. Pode me dar mais informações?`}
+      />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
-  centerContainer: {
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 18,
+    color: 'red',
+  },
   productImage: {
-    width: '100%',
+    width: Dimensions.get('window').width,
     height: 300,
-    resizeMode: 'cover',
   },
   contentContainer: {
-    padding: 16,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    padding: 20,
   },
   productName: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
   },
-  price: {
+  priceText: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FF6600',
+    fontWeight: '700',
+    color: '#FF8C00',
+    marginBottom: 12,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  ratingText: {
-    marginLeft: 8,
-    color: '#666',
-  },
-  reviewsCount: {
+  ratingCount: {
     marginLeft: 8,
     color: '#666',
     fontSize: 14,
@@ -212,45 +198,44 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   tab: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginRight: 16,
+    paddingVertical: 12,
+    marginRight: 24,
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#FF6600',
+    borderBottomColor: '#FF8C00',
   },
   tabText: {
+    fontSize: 16,
     color: '#666',
-    fontSize: 14,
   },
   activeTabText: {
-    color: '#FF6600',
+    color: '#FF8C00',
     fontWeight: '600',
+  },
+  tabContentContainer: {
+    paddingVertical: 16,
   },
   tabContent: {
-    minHeight: 100,
-  },
-  contentText: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 16,
+    lineHeight: 24,
     color: '#666',
   },
-  addToCartButton: {
-    backgroundColor: '#000',
-    padding: 16,
-    margin: 16,
-    borderRadius: 8,
-    alignItems: 'center',
+  reviewsContainer: {
+    marginTop: 8,
   },
-  addToCartText: {
-    color: '#fff',
+  reviewsText: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 8,
+  },
+  ratingText: {
+    marginLeft: 8,
     fontSize: 16,
     fontWeight: '600',
-  },
-  errorText: {
-    fontSize: 18,
-    color: '#FF0000',
-    textAlign: 'center',
+    color: '#333',
   },
 });
+
+export default ProductDetailsScreen;
+
